@@ -169,6 +169,8 @@ class WarpedNoiseBase:
 
     def warp(self, images, zoom_factor, noise_channels, noise_downtemp_interp, degradation, 
              target_latent_count, latent_shape, spatial_downscale_factor, seed, model=None, sigmas=None, return_flows=True, output_device="CPU"):
+        
+        print("inside warp in warper base")
         device = mm.get_torch_device()
         
         torch.manual_seed(seed)
