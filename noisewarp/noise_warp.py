@@ -147,9 +147,12 @@ def calculate_wave_pattern(h, w, frame):
     
     return dx, dy
 
-def starfield_zoom(h, w, frame):
+def starfield_zoom(h, w, frame, zoom_speed=0.01, device=None):
+    if device is None:
+        device = torch.device('cpu')
+
     # Create a grid of coordinates
-    y, x = torch.meshgrid(torch.arange(h), torch.arange(w))
+    y, x = torch.meshgrid(torch.arange(h, device=device), torch.arange(w, device=device))
     
     # Calculate the distance from the center of the image
     center_x, center_y = w // 2, h // 2
@@ -159,7 +162,6 @@ def starfield_zoom(h, w, frame):
     angle_from_center = torch.atan2(y - center_y, x - center_x)
     
     # Calculate the starfield zoom effect
-    zoom_speed = 0.01  # Speed of the zoom effect
     zoom_scale = 1.0 + frame * zoom_speed  # Scale factor for the zoom effect
     
     # Calculate the displacement based on the distance and angle

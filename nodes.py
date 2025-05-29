@@ -9,7 +9,7 @@ from comfy.utils import ProgressBar
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
-from .noisewarp.noise_warp import NoiseWarper, mix_new_noise
+from .noisewarp.noise_warp import NoiseWarper, mix_new_noise, starfield_zoom
 from .noisewarp.raft import RaftOpticalFlow
 
 def get_downtemp_noise(noise, noise_downtemp_interp, interp_to=13):   
@@ -119,7 +119,7 @@ class WarpedNoiseBase:
     FUNCTION = "warp"
     CATEGORY = "NoiseWarp"
 
-    def _process_video_frames(self, images, noise_channels, device, downscale_factor, resize_flow, return_flows=True):
+    def _process_video_frames(self, images, zoom_factor, noise_channels, device, downscale_factor, resize_flow, return_flows=True):
         B, H, W, C = images.shape
         video_frames = images.permute(0, 3, 1, 2)
         
@@ -135,9 +135,9 @@ class WarpedNoiseBase:
         raft_model = RaftOpticalFlow(device, "large")
         raft_model.model.to(device)
 
-        return self._compute_warped_noise(video_frames, warper, raft_model, downscale_factor, return_flows=return_flows)
+        return self._compute_warped_noise(video_frames, zoom_factor, H, W, warper, raft_model, downscale_factor, return_flows=return_flows)
 
-    def _compute_warped_noise(self, video_frames, warper, raft_model, downscale_factor, return_flows=False):
+    def _compute_warped_noise(self, video_frames, zoom_factor, H, W, warper, raft_model, downscale_factor, return_flows=False):
         prev_video_frame = video_frames[0]
         noise = warper.noise
         down_noise = self._downscale_noise(noise, downscale_factor)
@@ -150,6 +150,12 @@ class WarpedNoiseBase:
 
         for video_frame in tqdm(video_frames[1:], desc="Calculating noise warp"):
             dx, dy = raft_model(prev_video_frame, video_frame)
+
+            if zoom_factor > 0:
+                zdx, zdy = starfield_zoom(H, W, frame=1, zoom_speed=zoom_factor, device=dx.device)
+                dx = dx + zdx
+                dy = dy + zdy
+            
             if return_flows:
                 flow_rgb = optical_flow_to_image(dx.cpu().numpy(), dy.cpu().numpy(), mode='saturation', sensitivity=1)
                 rgb_flows.append(flow_rgb)
@@ -161,7 +167,7 @@ class WarpedNoiseBase:
 
         return np.stack(numpy_noises), np.stack(rgb_flows) if return_flows else None
 
-    def warp(self, images, noise_channels, noise_downtemp_interp, degradation, 
+    def warp(self, images, zoom_factor, noise_channels, noise_downtemp_interp, degradation, 
              target_latent_count, latent_shape, spatial_downscale_factor, seed, model=None, sigmas=None, return_flows=True, output_device="CPU"):
         device = mm.get_torch_device()
         
@@ -172,7 +178,7 @@ class WarpedNoiseBase:
         downscale_factor = round(resize_frames * resize_flow) * spatial_downscale_factor
 
         numpy_noises, rgb_flows = self._process_video_frames(
-            images, noise_channels, device, downscale_factor, resize_flow, return_flows=return_flows
+            images, zoom_factor, noise_channels, device, downscale_factor, resize_flow, return_flows=return_flows
         )
 
         # Process noise tensor
@@ -226,6 +232,7 @@ class GetWarpedNoiseFromVideo(WarpedNoiseBase):
         return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_channels": ("INT", {"default": 16, "min": 1, "max": 256, "step": 1}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "target_latent_count": ("INT", {"default": 13, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many latent frames"}),
@@ -279,6 +286,7 @@ class GetWarpedNoiseFromVideoCogVideoX(WarpedNoiseBase):
        return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "num_frames": ("INT", {"default": 49, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many frames"}),
                 "degradation": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Degradation level(s) for the noise warp"}),
@@ -287,10 +295,11 @@ class GetWarpedNoiseFromVideoCogVideoX(WarpedNoiseBase):
             },
         }
 
-    def warp(self, images, degradation, seed, noise_downtemp_interp, num_frames, model=None, sigmas=None, output_device="CPU"):
+    def warp(self, images, zoom_factor, degradation, seed, noise_downtemp_interp, num_frames, model=None, sigmas=None, output_device="CPU"):
         latent_frames = (num_frames - 1) // 4 + 1
         return super().warp(
             images=images,
+            zoom_factor=zoom_factor,
             noise_channels=16,
             noise_downtemp_interp=noise_downtemp_interp,
             degradation=degradation,
