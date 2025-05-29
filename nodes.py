@@ -232,7 +232,7 @@ class GetWarpedNoiseFromVideo(WarpedNoiseBase):
         return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
-                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_channels": ("INT", {"default": 16, "min": 1, "max": 256, "step": 1}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "target_latent_count": ("INT", {"default": 13, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many latent frames"}),
@@ -286,7 +286,7 @@ class GetWarpedNoiseFromVideoCogVideoX(WarpedNoiseBase):
        return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
-                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "num_frames": ("INT", {"default": 49, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many frames"}),
                 "degradation": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Degradation level(s) for the noise warp"}),
@@ -318,7 +318,7 @@ class GetWarpedNoiseFromVideoHunyuan(WarpedNoiseBase):
        return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
-                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -1.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": -100.0, "max": 100.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "num_frames": ("INT", {"default": 49, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many frames"}),
                 "degradation": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Degradation level(s) for the noise warp"}),
