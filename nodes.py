@@ -294,9 +294,13 @@ class GetWarpedNoiseFromVideoCogVideoX(WarpedNoiseBase):
                 "output_device": (["GPU", "CPU"], {"default": "CPU", "tooltip": "Device to return the latents on"}),
             },
         }
+    
+    RETURN_TYPES = ("LATENT", "IMAGE", "IMAGE",)
+    RETURN_NAMES = ("noise", "visualization", "optical_flows")
 
     def warp(self, images, zoom_factor, degradation, seed, noise_downtemp_interp, num_frames, model=None, sigmas=None, output_device="CPU"):
         latent_frames = (num_frames - 1) // 4 + 1
+        print("inside cogvideo warper")
         return super().warp(
             images=images,
             zoom_factor=zoom_factor,
@@ -309,6 +313,7 @@ class GetWarpedNoiseFromVideoCogVideoX(WarpedNoiseBase):
             seed=seed,
             model=model,
             sigmas=sigmas,
+            return_flows=True,
             output_device=output_device
         )
     
