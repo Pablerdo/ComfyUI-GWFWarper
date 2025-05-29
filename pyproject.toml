@@ -1,15 +1,15 @@
 [project]
-name = "comfyui-videonoisewarp"
+name = "comfyui-gwfwarper"
 description = "Nodes to generate noise from video for https://github.com/Eyeline-Research/Go-with-the-Flow"
 version = "1.0.3"
 license = {file = "LICENSE"}
 dependencies = ["einops"]
 
 [project.urls]
-Repository = "https://github.com/kijai/ComfyUI-VideoNoiseWarp"
+Repository = "https://github.com/kijai/ComfyUI-GWFWarper"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = "kijai"
-DisplayName = "ComfyUI-ComfyUI-VideoNoiseWarp"
+PublisherId = "pablerdo"
+DisplayName = "ComfyUI-GWFWarper"
 Icon = ""
