@@ -318,6 +318,7 @@ class GetWarpedNoiseFromVideoHunyuan(WarpedNoiseBase):
        return {
             "required": {
                 "images": ("IMAGE", {"tooltip": "Input images to be warped"}),
+                "zoom_factor": ("FLOAT", {"default": 0.0, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Zoom in factor for the noise warp"}),
                 "noise_downtemp_interp": (["nearest", "blend", "blend_norm", "randn", "disabled"], {"tooltip": "Interpolation method(s) for down-temporal noise"}),
                 "num_frames": ("INT", {"default": 49, "min": 1, "max": 2048, "step": 1, "tooltip": "Interpolate to this many frames"}),
                 "degradation": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "tooltip": "Degradation level(s) for the noise warp"}),
@@ -327,10 +328,11 @@ class GetWarpedNoiseFromVideoHunyuan(WarpedNoiseBase):
     RETURN_TYPES = ("LATENT", "IMAGE",)
     RETURN_NAMES = ("noise", "visualization",)
 
-    def warp(self, images, degradation, seed, noise_downtemp_interp, num_frames, model=None, sigmas=None):
+    def warp(self, images, zoom_factor, degradation, seed, noise_downtemp_interp, num_frames, model=None, sigmas=None):
         latent_frames = (num_frames - 1) // 4 + 1
         return super().warp(
             images=images,
+            zoom_factor=zoom_factor,
             noise_channels=16,
             noise_downtemp_interp=noise_downtemp_interp,
             degradation=degradation,
