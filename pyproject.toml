@@ -3,7 +3,7 @@ name = "comfyui-gwfwarper"
 description = "Nodes to generate noise from video for https://github.com/Eyeline-Research/Go-with-the-Flow"
 version = "1.0.3"
 license = {file = "LICENSE"}
-dependencies = ["einops", "opencv-python"]
+dependencies = ["einops"]
 
 [project.urls]
 Repository = "https://github.com/kijai/ComfyUI-GWFWarper"
