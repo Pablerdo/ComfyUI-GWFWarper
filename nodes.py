@@ -153,8 +153,8 @@ class WarpedNoiseBase:
 
             if abs(zoom_factor) > 0:
                 zdx, zdy = starfield_zoom(H, W, frame=1, zoom_speed=zoom_factor, device=dx.device)
-                dx = dx - zdx
-                dy = dy - zdy
+                dx = dx + zdx
+                dy = dy + zdy
             
             if return_flows:
                 flow_rgb = optical_flow_to_image(dx.cpu().numpy(), dy.cpu().numpy(), mode='saturation', sensitivity=1)
