@@ -151,7 +151,7 @@ class WarpedNoiseBase:
         for video_frame in tqdm(video_frames[1:], desc="Calculating noise warp"):
             dx, dy = raft_model(prev_video_frame, video_frame)
 
-            if zoom_factor > 0:
+            if abs(zoom_factor) > 0:
                 zdx, zdy = starfield_zoom(H, W, frame=1, zoom_speed=zoom_factor, device=dx.device)
                 dx = dx - zdx
                 dy = dy - zdy
